@@ -4,43 +4,47 @@ import com.example.Authify.Repository.UserRepository;
 import com.example.Authify.entiry.UserEntity;
 import com.example.Authify.io.ProfileRequest;
 import com.example.Authify.io.ProfileResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
     private final UserRepository userRepository;
+
+    // Manual constructor instead of @RequiredArgsConstructor
+    public ProfileServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
-    public ProfileResponse createProfile(ProfileRequest request){
+    public ProfileResponse createProfile(ProfileRequest request) {
         UserEntity newProfile = convertToUserEntity(request);
         newProfile = userRepository.save(newProfile);
         return convertToProfileResponse(newProfile);
     }
 
     private ProfileResponse convertToProfileResponse(UserEntity newProfile) {
-        return ProfileResponse.builder()
-                .name(newProfile.getName())
-                .email(newProfile.getEmail())
-                .userId(newProfile.getUserId())
-                .isAccountVerified(newProfile.getIsAccountVerified())
-                .build();
+        ProfileResponse response = new ProfileResponse();
+        response.setName(newProfile.getName());
+        response.setEmail(newProfile.getEmail());
+        response.setUserId(newProfile.getUserId());
+        response.setIsAccountVerified(newProfile.getIsAccountVerified());
+        return response;
     }
 
     private UserEntity convertToUserEntity(ProfileRequest request) {
-        return UserEntity.builder()
-                .email(request.getEmail())
-                .userId(UUID.randomUUID().toString())
-                .name(request.getName())
-                .password(request.getPassword())
-                .isAccountVerified(false)
-                .verifyOtp(null)
-                .verifyOtpExpireAt(null)
-                .resetOtp(null)
-                .build();
-
+        UserEntity user = new UserEntity();
+        user.setEmail(request.getEmail());
+        user.setUserId(UUID.randomUUID().toString());
+        user.setName(request.getName());
+        user.setPassword(request.getPassword());
+        user.setIsAccountVerified(false);
+        user.setVerifyOtp(null);
+        user.setVerifyOtpExpireAt(null);
+        user.setResetOtp(null);
+        user.setResetOtpExpireAt(null);
+        return user;
     }
 }
